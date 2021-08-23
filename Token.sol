@@ -782,7 +782,7 @@ contract PokcoinToken is ERC20, Ownable {
 
     constructor() ERC20("P.com", "SYMBOL") {
         cap = 99000000 ether; // Max Supply: 99 million pokcoin
-        _mint(_msgSender(), (cap * 50) / 100); //IDO + Add lq: 50%
+        _mint(_msgSender(), (cap * 52) / 100); //IDO + Add lq: 50% + 2% Airdrop
     }
 
     function setCap(uint256 _newCap) external onlyOwner {
