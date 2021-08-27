@@ -763,38 +763,19 @@ contract PokcoinToken is ERC20, Ownable {
     using SafeMath for uint256;
 
     uint256 public cap;
-    mapping(address => bool) public minter;
-
+    uint256 public masterchefAmount;
     uint256 private _totalBurned;
-
-    /* ========== EVENTS ========== */
-
-    event MinterUpdate(address indexed account, bool isMinter);
-
-    /* ========== Modifiers =============== */
-
-    modifier onlyMinter() {
-        require(minter[msg.sender], "!minter");
-        _;
-    }
-
+    address public masterchef;
     /* ========== GOVERNANCE ========== */
 
-    constructor() ERC20("P.com", "SYMBOL") {
+    constructor() ERC20("pokmonsters.com", "POK") {
         cap = 99000000 ether; // Max Supply: 99 million pokcoin
         _mint(_msgSender(), (cap * 52) / 100); //IDO + Add lq: 50% + 2% Airdrop
+         masterchefAmount= cap.sub((cap * 52) / 100);
     }
 
-    function setCap(uint256 _newCap) external onlyOwner {
-        require(totalSupply() <= _newCap, "exceeds current supply");
-        cap = _newCap;
-    }
 
-    function setMinter(address _account, bool _isMinter) external onlyOwner {
-        require(_account != address(0), "zero");
-        minter[_account] = _isMinter;
-        emit MinterUpdate(_account, _isMinter);
-    }
+
 
     /* ========== VIEW FUNCTIONS ========== */
 
@@ -804,19 +785,18 @@ contract PokcoinToken is ERC20, Ownable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    function mint(address _recipient, uint256 _amount) external onlyMinter returns (bool) {
-        uint256 balanceBefore = balanceOf(_recipient);
-        _mint(_recipient, _amount);
-        return balanceOf(_recipient) > balanceBefore;
+
+    function mintToGameReserve(address _chef) external onlyOwner  {
+        require(masterchefAmount > 0, "minted");
+        require(_chef != address(0), "!_gameFund");
+        _mint(_chef, masterchefAmount); 
+        masterchef=_chef;
+        masterchefAmount=0;
+       
     }
 
     function burn(uint256 _amount) external {
         _burn(msg.sender, _amount);
-    }
-
-    function burnFrom(address _account, uint256 _amount) external {
-        _approve(_account, _msgSender(), allowance(_account, _msgSender()).sub(_amount, "ERC20: burn amount exceeds allowance"));
-        _burn(_account, _amount);
     }
 
     /* ========== OVERRIDE STANDARD FUNCTIONS ========== */
