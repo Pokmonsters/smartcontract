@@ -1,5 +1,3 @@
-
-
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.6;
@@ -25,7 +23,9 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint256 amount) external returns (bool);
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -34,7 +34,10 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -79,7 +82,11 @@ interface IERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 }
 
 /**
@@ -214,7 +221,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account) public view virtual override returns (uint256) {
+    function balanceOf(address account)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _balances[account];
     }
 
@@ -226,7 +239,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+    function transfer(address recipient, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
@@ -234,7 +252,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _allowances[owner][spender];
     }
 
@@ -245,7 +269,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    function approve(address spender, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -271,7 +300,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
-        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        require(
+            currentAllowance >= amount,
+            "ERC20: transfer amount exceeds allowance"
+        );
         unchecked {
             _approve(sender, _msgSender(), currentAllowance - amount);
         }
@@ -291,8 +323,16 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `spender` cannot be the zero address.
      */
-    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
+    function increaseAllowance(address spender, uint256 addedValue)
+        public
+        virtual
+        returns (bool)
+    {
+        _approve(
+            _msgSender(),
+            spender,
+            _allowances[_msgSender()][spender] + addedValue
+        );
         return true;
     }
 
@@ -310,9 +350,16 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `spender` must have allowance for the caller of at least
      * `subtractedValue`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        public
+        virtual
+        returns (bool)
+    {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
-        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        require(
+            currentAllowance >= subtractedValue,
+            "ERC20: decreased allowance below zero"
+        );
         unchecked {
             _approve(_msgSender(), spender, currentAllowance - subtractedValue);
         }
@@ -345,7 +392,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _beforeTokenTransfer(sender, recipient, amount);
 
         uint256 senderBalance = _balances[sender];
-        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        require(
+            senderBalance >= amount,
+            "ERC20: transfer amount exceeds balance"
+        );
         unchecked {
             _balances[sender] = senderBalance - amount;
         }
@@ -486,7 +536,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -526,7 +579,10 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _setOwner(newOwner);
     }
 
@@ -552,7 +608,11 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryAdd(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
         unchecked {
             uint256 c = a + b;
             if (c < a) return (false, 0);
@@ -565,7 +625,11 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function trySub(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
         unchecked {
             if (b > a) return (false, 0);
             return (true, a - b);
@@ -577,7 +641,11 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMul(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
         unchecked {
             // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
             // benefit is lost if 'b' is also tested.
@@ -594,7 +662,11 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryDiv(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a / b);
@@ -606,7 +678,11 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMod(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a % b);
@@ -759,23 +835,33 @@ library SafeMath {
     }
 }
 
-contract PokcoinToken is ERC20, Ownable {
+contract PokToken is ERC20, Ownable {
     using SafeMath for uint256;
 
     uint256 public cap;
     uint256 public masterchefAmount;
     uint256 private _totalBurned;
+    uint256 public burnRate;
     address public masterchef;
+    mapping(address => bool) private _isIncludedFromFee;
+    mapping(address => bool) private _isIncludedToFee;
+
+    /* ========== EVENTS ========== */
+    event DeflationTransfer(
+        address indexed from,
+        address indexed to,
+        uint256 value,
+        uint256 sentAmount
+    );
+
     /* ========== GOVERNANCE ========== */
 
-    constructor() ERC20("pokmonsters.com", "POK") {
-        cap = 99000000 ether; // Max Supply: 99 million pokcoin
+    constructor() ERC20("https://pokmonsters.com", "POK") {
+        cap = 99000000 ether; // Max Supply: 99 million Pok Token
         _mint(_msgSender(), (cap * 52) / 100); //IDO + Add lq: 50% + 2% Airdrop
-         masterchefAmount= cap.sub((cap * 52) / 100);
+        masterchefAmount = cap.sub((cap * 52) / 100);
+        burnRate = 500; //5%
     }
-
-
-
 
     /* ========== VIEW FUNCTIONS ========== */
 
@@ -783,16 +869,39 @@ contract PokcoinToken is ERC20, Ownable {
         return _totalBurned;
     }
 
+    function setIncludeFromFee(address _account, bool _status)
+        external
+        onlyOwner
+    {
+        _isIncludedFromFee[_account] = _status;
+    }
+
+    function setIncludeToFee(address _account, bool _status)
+        external
+        onlyOwner
+    {
+        _isIncludedToFee[_account] = _status;
+    }
+
+    function setBurnRate(uint256 _burnRate) external onlyOwner {
+        require(_burnRate <= 1000, "too high"); // <= 10%
+        burnRate = _burnRate;
+    }
+    function isIncludedFromFee(address _account) external view returns (bool) {
+        return _isIncludedFromFee[_account];
+    }
+
+    function isIncludedToFee(address _account) external view returns (bool) {
+        return _isIncludedToFee[_account];
+    }
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-
-    function mintToGameReserve(address _chef) external onlyOwner  {
+    function mintToGameReserve(address _chef) external onlyOwner {
         require(masterchefAmount > 0, "minted");
         require(_chef != address(0), "!_gameFund");
-        _mint(_chef, masterchefAmount); 
-        masterchef=_chef;
-        masterchefAmount=0;
-       
+        _mint(_chef, masterchefAmount);
+        masterchef = _chef;
+        masterchefAmount = 0;
     }
 
     function burn(uint256 _amount) external {
@@ -838,5 +947,33 @@ contract PokcoinToken is ERC20, Ownable {
             // When burning tokens
             cap = cap.sub(_amount, "burn amount exceeds cap");
         }
+    }
+
+    function _transfer(
+        address _sender,
+        address _recipient,
+        uint256 _amount
+    ) internal override {
+        require(_sender != address(0), "ERC20: transfer from the zero address");
+        require(
+            _recipient != address(0),
+            "ERC20: transfer to the zero address"
+        );
+
+        _beforeTokenTransfer(_sender, _recipient, _amount);
+
+        uint256 _sentAmount = _amount;
+        if (_isIncludedFromFee[_sender] || _isIncludedToFee[_recipient]) {
+            uint256 _burnAmount = 0;
+            uint256 _burnRate = burnRate;
+            if (_burnRate > 0) {
+                _burnAmount = _amount.mul(_burnRate).div(10000);
+                _burn(_sender, _burnAmount);
+                _sentAmount = _sentAmount.sub(_burnAmount);
+            }
+        }
+
+        super._transfer(_sender, _recipient, _sentAmount);
+        emit DeflationTransfer(_sender, _recipient, _amount, _sentAmount);
     }
 }

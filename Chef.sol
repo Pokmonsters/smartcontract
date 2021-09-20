@@ -981,13 +981,13 @@ contract PokFarmingBank is
         uint256 amount; // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of pokcoins
+        // We do some fancy math here. Basically, any point in time, the amount of poks
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accpokcoinPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accpokPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accpokcoinPerShare` (and `lastRewardTime`) gets updated.
+        //   1. The pool's `accpokPerShare` (and `lastRewardTime`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -996,9 +996,9 @@ contract PokFarmingBank is
     // Info of each pool.
     struct PoolInfo {
         IERC20 lpToken; // Address of LP token contract.
-        uint256 allocPoint; // How many allocation points assigned to this pool. pokcoins to distribute per block.
-        uint256 lastRewardTime; // Last timestamp that pokcoins distribution occurs.
-        uint256 accpokcoinPerShare; // Accumulated pokcoins per share, times 1e18. See below.
+        uint256 allocPoint; // How many allocation points assigned to this pool. poks to distribute per block.
+        uint256 lastRewardTime; // Last timestamp that poks distribution occurs.
+        uint256 accpokPerShare; // Accumulated poks per share, times 1e18. See below.
         uint256 totalLpSupply;
         uint256 totalLpSupplyBoosted;
         bool isStarted; // if lastRewardTime has passed
@@ -1008,7 +1008,7 @@ contract PokFarmingBank is
         uint256 earlyWithdrawFee;
     }
 
-    address public pokcoin; // pokcoin
+    address public pok; // pok
     address public nft; // PokMonster
     address public stats; // PokMonster
 
@@ -1027,7 +1027,7 @@ contract PokFarmingBank is
     // Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
 
-    // The block number when pokcoin mining starts.
+    // The block number when pok mining starts.
     uint256 public startTime;
 
     uint256 public week;
@@ -1140,7 +1140,7 @@ contract PokFarmingBank is
     ) external initializer {
         __Ownable_init();
 
-        pokcoin = _pok;
+        pok = _pok;
         nft = _nft;
         stats = _stats;
         devFund = _devFund;
@@ -1150,7 +1150,7 @@ contract PokFarmingBank is
         devRate = 2500; // 25%
         gameTreasuryRate = 3333; // 33.33%
 
-        totalRewardPerSecond = 753424657534246575; // 0.753424657534246575 pokcoin/seconds
+        totalRewardPerSecond = 753424657534246575; // 0.753424657534246575 pok/seconds
         _updateRewardPerSecond();
 
         week = 0;
@@ -1258,7 +1258,7 @@ contract PokFarmingBank is
                 lpToken: _lpToken,
                 allocPoint: _allocPoint,
                 lastRewardTime: _lastRewardTime,
-                accpokcoinPerShare: 0,
+                accpokPerShare: 0,
                 totalLpSupply: 0,
                 totalLpSupplyBoosted: 0,
                 isStarted: _isStarted,
@@ -1280,7 +1280,7 @@ contract PokFarmingBank is
         require(_lpToken.totalSupply() > 0, "Non-existing token");
         PoolInfo storage pool = poolInfo[_pid];
         require(
-            pool.accpokcoinPerShare == 0 && pool.totalLpSupply == 0,
+            pool.accpokPerShare == 0 && pool.totalLpSupply == 0,
             "Cant replace running pool"
         );
         massUpdatePools();
@@ -1352,7 +1352,7 @@ contract PokFarmingBank is
         nftLockDisabled = !nftLockDisabled;
     }
 
-    // View function to see pending pokcoins on frontend.
+    // View function to see pending poks on frontend.
     function pendingReward(uint256 _pid, address _user)
         external
         view
@@ -1360,7 +1360,7 @@ contract PokFarmingBank is
     {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accpokcoinPerShare = pool.accpokcoinPerShare;
+        uint256 accpokPerShare = pool.accpokPerShare;
         uint256 lpSupply = pool.totalLpSupplyBoosted;
         if (block.timestamp > pool.lastRewardTime && lpSupply != 0) {
             uint256 _seconds = block.timestamp - pool.lastRewardTime;
@@ -1368,11 +1368,11 @@ contract PokFarmingBank is
                 uint256 _pokReward = (_seconds *
                     rewardPerSecond *
                     pool.allocPoint) / totalAllocPoint;
-                accpokcoinPerShare += (_pokReward * 1e18) / lpSupply;
+                accpokPerShare += (_pokReward * 1e18) / lpSupply;
             }
         }
         uint256 _totalReward = (_getAccountBoostedAmount(_user, user.amount) *
-            accpokcoinPerShare) / 1e18;
+            accpokPerShare) / 1e18;
         uint256 _rewardDebt = user.rewardDebt;
         return (_totalReward > _rewardDebt) ? _totalReward - _rewardDebt : 0;
     }
@@ -1405,7 +1405,7 @@ contract PokFarmingBank is
             uint256 _pokReward = (_seconds *
                 rewardPerSecond *
                 pool.allocPoint) / totalAllocPoint;
-            pool.accpokcoinPerShare += (_pokReward * 1e18) / lpSupply;
+            pool.accpokPerShare += (_pokReward * 1e18) / lpSupply;
         }
         pool.lastRewardTime = block.timestamp;
     }
@@ -1416,7 +1416,7 @@ contract PokFarmingBank is
         if (_amount > 0) {
             _amount = _getAccountBoostedAmount(_account, _amount);
             PoolInfo storage pool = poolInfo[_pid];
-            uint256 _totalReward = (_amount * pool.accpokcoinPerShare) / 1e18;
+            uint256 _totalReward = (_amount * pool.accpokPerShare) / 1e18;
             uint256 _claimableAmount = 0;
             if (_totalReward < user.rewardDebt) {
                 user.rewardDebt = _totalReward;
@@ -1425,7 +1425,7 @@ contract PokFarmingBank is
             }
             if (_claimableAmount > 0) {
                 require(
-                    _claimableAmount * 200 <= IERC20(pokcoin).totalSupply(),
+                    _claimableAmount * 200 <= IERC20(pok).totalSupply(),
                     "Suspicious big reward amount!!"
                 ); // <= 0.5% total supply
                 emit RewardPaid(_account, _claimableAmount);
@@ -1435,10 +1435,10 @@ contract PokFarmingBank is
                 if (noStakeFee > 0 && userStakedNft[_account] == 0) {
                     uint256 _fee = (_claimableAmount * noStakeFee) / 10000;
                     _claimableAmount -= _fee;
-                    _safepokcoinBurn(_fee);
+                    _safepokBurn(_fee);
                 }
 
-                _safepokcoinTransfer(_account, _claimableAmount);
+                _safepokTransfer(_account, _claimableAmount);
             }
         }
     }
@@ -1482,7 +1482,7 @@ contract PokFarmingBank is
         }
         user.rewardDebt =
             (_getAccountBoostedAmount(msg.sender, user.amount) *
-                pool.accpokcoinPerShare) /
+                pool.accpokPerShare) /
             1e18;
         emit Deposit(msg.sender, _pid, _amount);
     }
@@ -1546,7 +1546,7 @@ contract PokFarmingBank is
         }
         user.rewardDebt =
             (_getAccountBoostedAmount(_account, user.amount) *
-                pool.accpokcoinPerShare) /
+                pool.accpokPerShare) /
             1e18;
         emit Withdraw(_account, _pid, _amount);
     }
@@ -1564,24 +1564,24 @@ contract PokFarmingBank is
         }
     }
 
-    function _safepokcoinTransfer(address _to, uint256 _amount) internal {
-        uint256 _pokBal = IERC20(pokcoin).balanceOf(address(this));
+    function _safepokTransfer(address _to, uint256 _amount) internal {
+        uint256 _pokBal = IERC20(pok).balanceOf(address(this));
         if (_pokBal > 0) {
             if (_amount > _pokBal) {
-                IERC20(pokcoin).safeTransfer(_to, _pokBal);
+                IERC20(pok).safeTransfer(_to, _pokBal);
             } else {
-                IERC20(pokcoin).safeTransfer(_to, _amount);
+                IERC20(pok).safeTransfer(_to, _amount);
             }
         }
     }
 
-    function _safepokcoinBurn(uint256 _amount) internal {
-        uint256 _pokBal = IERC20(pokcoin).balanceOf(address(this));
+    function _safepokBurn(uint256 _amount) internal {
+        uint256 _pokBal = IERC20(pok).balanceOf(address(this));
         if (_pokBal > 0) {
             if (_amount > _pokBal) {
-                ICappedMintableBurnableERC20(pokcoin).burn(_pokBal);
+                ICappedMintableBurnableERC20(pok).burn(_pokBal);
             } else {
-                ICappedMintableBurnableERC20(pokcoin).burn(_amount);
+                ICappedMintableBurnableERC20(pok).burn(_amount);
             }
         }
     }
@@ -1592,8 +1592,8 @@ contract PokFarmingBank is
             rewardPerSecond;
         uint256 _devAmount = (_totalAmount * devRate) / 10000;
         uint256 _gameTreasuryAmount = (_totalAmount * gameTreasuryRate) / 10000;
-        _safepokcoinTransfer(devFund, _devAmount);
-        _safepokcoinTransfer(gameTreasuryFund, _gameTreasuryAmount);
+        _safepokTransfer(devFund, _devAmount);
+        _safepokTransfer(gameTreasuryFund, _gameTreasuryAmount);
         totalDevFundAdded = totalDevFundAdded + _devAmount;
         totalGameTreasuryFundAdded =totalGameTreasuryFundAdded + _gameTreasuryAmount;
     }
@@ -1696,7 +1696,7 @@ contract PokFarmingBank is
                 updatePool(pid);
                 user.rewardDebt =
                     (_getBoostedAmount(_amount, _newLockedTokenId) *
-                        pool.accpokcoinPerShare) /
+                        pool.accpokPerShare) /
                     1e18;
             }
         }
